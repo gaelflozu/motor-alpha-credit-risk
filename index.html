@@ -82,6 +82,14 @@
             
             <div class="space-y-4">
                 <div>
+                    <label class="block text-sm text-slate-400 mb-1">Ingreso Mensual (MXN)</label>
+                    <div class="relative">
+                        <span class="absolute left-3 top-2.5 text-slate-400">$</span>
+                        <input type="number" id="income" value="80000" class="w-full bg-slate-800 border border-slate-600 rounded-lg py-2 pl-8 pr-4 text-white focus:outline-none focus:border-emerald-400 transition-colors">
+                    </div>
+                </div>
+                
+                <div>
                     <label class="block text-sm text-slate-400 mb-1">Probabilidad de Default (PD) | LGD Asumido: 100%</label>
                     <input type="range" id="pd-slider" min="0" max="30" step="0.5" value="5" class="w-full accent-emerald-500">
                     <div class="flex justify-between text-xs text-slate-400 mt-1">
@@ -91,8 +99,8 @@
                     </div>
                 </div>
 
-                <button onclick="calculateLimit()" class="w-full mt-4 bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 text-white font-bold py-3 px-4 rounded-lg transition-all">
-                    Calcular Límite
+                <button onclick="calculateLimit()" class="w-full mt-4 bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 text-white font-bold py-3 px-4 rounded-lg transition-all shadow-lg hover:shadow-emerald-500/20 active:scale-95">
+                    Ejecutar Algoritmo
                 </button>
 
                 <div class="mt-6 p-4 bg-slate-800/50 rounded-lg border border-slate-700">
@@ -112,7 +120,7 @@
                 </h2>
                 
                 <!-- Botón de carga de CSV -->
-                <label class="custom-file-upload bg-slate-700 hover:bg-slate-600 border border-slate-500 text-sm px-4 py-2 rounded-lg flex items-center gap-2 transition-all">
+                <label class="custom-file-upload bg-slate-700 hover:bg-slate-600 border border-slate-500 text-sm px-4 py-2 rounded-lg flex items-center gap-2 transition-all shadow-md">
                     <i data-lucide="upload-cloud" class="w-4 h-4"></i>
                     Cargar archivo CSV
                     <input type="file" id="csv-file" accept=".csv">
@@ -138,16 +146,27 @@
         // --- 1. LÓGICA DE LA CALCULADORA INDIVIDUAL ---
         const slider = document.getElementById('pd-slider');
         const pdVal = document.getElementById('pd-val');
+        const incomeInput = document.getElementById('income');
 
+        // REACTIVIDAD: Actualizar algoritmo al mover el slider
         slider.addEventListener('input', function() {
             pdVal.textContent = this.value + '%';
             if(this.value < 10) pdVal.className = "text-emerald-400 font-bold text-sm";
-            else if(this.value < 20) pdVal.className = "text-yellow-400 font-bold text-sm";
+            else if(this.value <= 15) pdVal.className = "text-yellow-400 font-bold text-sm";
             else pdVal.className = "text-rose-400 font-bold text-sm";
+            
+            // Llama a la función automáticamente en tiempo real
+            calculateLimit();
+        });
+
+        // REACTIVIDAD: Actualizar algoritmo al escribir el sueldo
+        incomeInput.addEventListener('input', function() {
+            // Llama a la función automáticamente en tiempo real
+            calculateLimit();
         });
 
         function calculateLimit() {
-            const income_monthly = parseFloat(document.getElementById('income').value);
+            const income_monthly = parseFloat(incomeInput.value);
             const pd = parseFloat(slider.value) / 100;
             const limitEl = document.getElementById('result-limit');
             const reasonEl = document.getElementById('result-reason');
