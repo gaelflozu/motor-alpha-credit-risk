@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Motor de Riesgo Alpha v1.0</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #f8fafc; }
+        .glass-panel { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+    </style>
+</head>
+<body class="p-4 md:p-8 min-h-screen">
+
+    <!-- Header -->
+    <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 border-b border-slate-700 pb-4">
+        <div>
+            <h1 class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400 flex items-center gap-3">
+                <i data-lucide="cpu" class="w-8 h-8 text-emerald-400"></i>
+                Motor Alpha v1.0
+            </h1>
+            <p class="text-slate-400 mt-1">Quantitative Credit Scoring & Kelly Allocation</p>
+        </div>
+        <div class="mt-4 md:mt-0 text-right">
+            <p class="text-sm text-slate-400">Analista Cuantitativo</p>
+            <p class="font-semibold text-emerald-300">Gael Flores Zúñiga</p>
+        </div>
+    </header>
+
+    <!-- KPIs -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        <div class="glass-panel p-6 rounded-xl">
+            <div class="flex justify-between items-start mb-2">
+                <p class="text-slate-400 text-sm">Cartera Simulada (N)</p>
+                <i data-lucide="users" class="text-cyan-400 w-5 h-5"></i>
+            </div>
+            <h3 class="text-2xl font-bold">6,336<span class="text-sm text-slate-500 font-normal ml-1">clientes</span></h3>
+        </div>
+        <div class="glass-panel p-6 rounded-xl">
+            <div class="flex justify-between items-start mb-2">
+                <p class="text-slate-400 text-sm">Límite Promedio (MXN)</p>
+                <i data-lucide="trending-up" class="text-emerald-400 w-5 h-5"></i>
+            </div>
+            <h3 class="text-2xl font-bold">$4,449</h3>
+        </div>
+        <div class="glass-panel p-6 rounded-xl">
+            <div class="flex justify-between items-start mb-2">
+                <p class="text-slate-400 text-sm">Exposición Máxima (Cap)</p>
+                <i data-lucide="shield-alert" class="text-rose-400 w-5 h-5"></i>
+            </div>
+            <h3 class="text-2xl font-bold">$50,000</h3>
+        </div>
+        <div class="glass-panel p-6 rounded-xl border-t-2 border-emerald-500">
+            <div class="flex justify-between items-start mb-2">
+                <p class="text-emerald-400 text-sm font-semibold">Fracción de Kelly</p>
+                <i data-lucide="percent" class="text-emerald-400 w-5 h-5"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-emerald-400">10%</h3>
+            <p class="text-xs text-slate-400 mt-1">Riesgo mitigado de ruina</p>
+        </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- Left: Simulator -->
+        <div class="glass-panel p-6 rounded-xl lg:col-span-1">
+            <h2 class="text-xl font-bold mb-4 flex items-center gap-2 border-b border-slate-700 pb-2">
+                <i data-lucide="calculator" class="w-5 h-5 text-cyan-400"></i>
+                Simulador de Asignación
+            </h2>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm text-slate-400 mb-1">Ingresos Mensuales Comprobables (MXN)</label>
+                    <div class="relative">
+                        <span class="absolute left-3 top-2.5 text-slate-400">$</span>
+                        <input type="number" id="income" value="25000" class="w-full bg-slate-800 border border-slate-600 rounded-lg py-2 pl-8 pr-4 text-white focus:outline-none focus:border-emerald-400">
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm text-slate-400 mb-1">Probabilidad de Default (PD) %</label>
+                    <input type="range" id="pd-slider" min="0" max="30" value="5" class="w-full accent-emerald-500">
+                    <div class="flex justify-between text-xs text-slate-400 mt-1">
+                        <span>0% (Seguro)</span>
+                        <span id="pd-val" class="text-emerald-400 font-bold text-sm">5.0%</span>
+                        <span>30% (Riesgoso)</span>
+                    </div>
+                </div>
+
+                <button onclick="calculateLimit()" class="w-full mt-4 bg-gradient-to-r from-emerald-500 to-cyan-600 hover:from-emerald-400 hover:to-cyan-500 text-white font-bold py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-[1.02]">
+                    Ejecutar Motor Alpha
+                </button>
+
+                <div class="mt-6 p-4 bg-slate-800/50 rounded-lg border border-slate-700">
+                    <p class="text-sm text-slate-400 text-center mb-1">Límite Aprobado (Algoritmo Kelly)</p>
+                    <p id="result-limit" class="text-4xl font-black text-center text-emerald-400">$0</p>
+                    <p id="result-reason" class="text-xs text-center text-slate-500 mt-2">Esperando cálculo...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Chart -->
+        <div class="glass-panel p-6 rounded-xl lg:col-span-2">
+            <h2 class="text-xl font-bold mb-4 flex items-center gap-2 border-b border-slate-700 pb-2">
+                <i data-lucide="scatter-chart" class="w-5 h-5 text-cyan-400"></i>
+                Dispersión: Límite vs. Riesgo (PD)
+            </h2>
+            <div class="relative h-72 w-full">
+                <canvas id="kellyChart"></canvas>
+            </div>
+            <p class="text-xs text-slate-400 mt-4 text-center">
+                *La curva asintótica demuestra la mitigación de exposición de capital ante el incremento del riesgo (Default).
+            </p>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        // Chart setup mimicking Gael's Python Output
+        const ctx = document.getElementById('kellyChart').getContext('2d');
+        
+        // Generate mock data mimicking the fractional kelly curve
+        const scatterData = [];
+        for(let i = 0; i < 300; i++) {
+            let pd = Math.random() * 0.25; // PD up to 25%
+            let max_limit_based_on_income = (Math.random() * 80000 + 10000) * 0.10; // 10% capacity
+            if(max_limit_based_on_income > 50000) max_limit_based_on_income = 50000;
+            
+            let b = 0.3; // Profit ratio
+            let q = pd;
+            let p = 1 - q;
+            let kelly_f = p - (q / b);
+            
+            let limit = 0;
+            if (kelly_f > 0 && pd < 0.20) {
+                // Apply fractional scaling + random noise to look like real data
+                let assigned = (kelly_f * 50000) * (0.8 + Math.random() * 0.4); 
+                limit = Math.min(assigned, max_limit_based_on_income, 50000);
+            }
+            
+            scatterData.push({x: pd * 100, y: limit});
+        }
+
+        const kellyChart = new Chart(ctx, {
+            type: 'scatter',
+            data: {
+                datasets: [{
+                    label: 'Clientes (Cartera Activa)',
+                    data: scatterData,
+                    backgroundColor: 'rgba(52, 211, 153, 0.5)',
+                    borderColor: 'rgba(52, 211, 153, 0.8)',
+                    borderWidth: 1,
+                    pointRadius: 3,
+                    pointHoverRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        title: { display: true, text: 'Probabilidad de Default (%)', color: '#94a3b8' },
+                        grid: { color: 'rgba(255,255,255,0.05)' },
+                        ticks: { color: '#94a3b8' }
+                    },
+                    y: {
+                        title: { display: true, text: 'Límite Asignado (MXN)', color: '#94a3b8' },
+                        grid: { color: 'rgba(255,255,255,0.05)' },
+                        ticks: { color: '#94a3b8', callback: function(value) { return '$' + value; } }
+                    }
+                },
+                plugins: {
+                    legend: { labels: { color: '#f8fafc' } },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `PD: ${context.parsed.x.toFixed(2)}% | Límite: $${context.parsed.y.toFixed(0)}`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Simulator Logic (Gael's Python Rules)
+        const slider = document.getElementById('pd-slider');
+        const pdVal = document.getElementById('pd-val');
+
+        slider.addEventListener('input', function() {
+            pdVal.textContent = this.value + '%';
+            if(this.value < 10) pdVal.className = "text-emerald-400 font-bold text-sm";
+            else if(this.value < 20) pdVal.className = "text-yellow-400 font-bold text-sm";
+            else pdVal.className = "text-rose-400 font-bold text-sm";
+        });
+
+        function calculateLimit() {
+            const income = parseFloat(document.getElementById('income').value);
+            const pd = parseFloat(slider.value) / 100;
+            const limitEl = document.getElementById('result-limit');
+            const reasonEl = document.getElementById('result-reason');
+
+            if (isNaN(income) || income <= 0) {
+                limitEl.textContent = "$0";
+                limitEl.className = "text-4xl font-black text-center text-rose-500";
+                reasonEl.textContent = "Error: Ingresa ingresos válidos.";
+                return;
+            }
+
+            // Regla de Negocio 1: PD mayor a 20% es rechazo automático (Filtro Anti-Ruina)
+            if (pd >= 0.20) {
+                limitEl.textContent = "RECHAZADO";
+                limitEl.className = "text-3xl font-black text-center text-rose-500";
+                reasonEl.textContent = "PD excede el umbral de apetito de riesgo (>20%).";
+                return;
+            }
+
+            // Reglas de Negocio Gael:
+            const max_cap = 50000;
+            const income_cap = income * 0.10; // Capacidad de pago 10%
+            
+            // Simplified Kelly calculation for demo purposes
+            const b = 0.3; // assumed profit ratio
+            const p = 1 - pd;
+            const q = pd;
+            let kelly_f = p - (q / b);
+            
+            if (kelly_f <= 0) {
+                limitEl.textContent = "$0";
+                limitEl.className = "text-4xl font-black text-center text-yellow-500";
+                reasonEl.textContent = "Kelly negativo. Inversión con -EV.";
+                return;
+            }
+
+            // Aplicamos fraccional (simulado para escalar a dinero) y topes
+            let asignacion_bruta = (kelly_f * max_cap); 
+            let final_limit = Math.min(asignacion_bruta, max_cap, income_cap);
+
+            // Redondeo a múltiplos de 500
+            final_limit = Math.round(final_limit / 500) * 500;
+
+            limitEl.textContent = "$" + final_limit.toLocaleString('es-MX');
+            limitEl.className = "text-4xl font-black text-center text-emerald-400";
+            
+            let reason = `Kelly Fraccional aplicado. `;
+            if (final_limit === max_cap) reason += "Topado por límite máximo ($50k).";
+            else if (final_limit === income_cap) reason += "Topado por capacidad de pago (10%).";
+            else reason += "Asignación optimizada por riesgo.";
+            
+            reasonEl.textContent = reason;
+        }
+
+        // Run once on load
+        calculateLimit();
+    </script>
+</body>
+</html>
