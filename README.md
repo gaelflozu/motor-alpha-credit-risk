@@ -35,5 +35,16 @@ El motor opera bajo tres pilares fundamentales de gestión de riesgo:
 Si deseas clonar este repositorio y correr la interfaz de simulación:
 
 1. Clona el repositorio:
-   ```bash
-   git clone [https://github.com/gaelflozu/motor-alpha-credit-risk.git](https://github.com/gaelflozu/motor-alpha-credit-risk.git)
+
+    git clone https://github.com/gaelflozu/motor-alpha-credit-risk.git
+
+2. Abre el archivo `index.html` en cualquier navegador moderno.
+3. Para simular carteras, carga el archivo `.csv` de prueba incluido en la carpeta `/data` (contiene +6,200 registros de clientes).
+4. El dashboard generará los límites de crédito dinámicos y la matriz de aprobación/rechazo en tiempo real.
+
+## 👨‍💻 Sobre el Autor
+**Gael Flores Zúñiga**
+*Estudiante de Actuaría | Analista Cuantitativo Junior*
+
+* Conecta conmigo en [LinkedIn](https://www.linkedin.com/in/gael-flores-datos)
+* Contacto: gaelflozu@gmail.com
